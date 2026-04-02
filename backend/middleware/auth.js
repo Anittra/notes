@@ -3,7 +3,8 @@ import jwt from "jsonwebtoken";
 export default function auth(req, res, next) {
   const authHeader = req.header("Authorization");
 
-  if (!authHeader) {
+  // 🔥 check header format
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ message: "No token" });
   }
 
@@ -12,10 +13,12 @@ export default function auth(req, res, next) {
 
     const decoded = jwt.verify(token, "secretkey");
 
-    req.user = decoded; // 🔥 IMPORTANT (object with id)
+    req.user = decoded; // 🔥 contains { id: ... }
 
     next();
+
   } catch (err) {
-    res.status(401).json({ message: "Invalid token" });
+    console.log("JWT ERROR:", err.message);
+    return res.status(401).json({ message: "Invalid token" });
   }
 }

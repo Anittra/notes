@@ -1,15 +1,17 @@
 import { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 const API = "https://notesai-backend-rs0t.onrender.com/api/notes";
 
-export default function AddNote({ token }) {
+export default function AddNote() {
   const [text, setText] = useState("");
-  const navigate = useNavigate();
 
   const saveNote = async () => {
+    alert("Clicked 🔥"); // 🔥 test
+
     if (!text) return;
+
+    const token = localStorage.getItem("token");
 
     try {
       await axios.post(
@@ -22,36 +24,37 @@ export default function AddNote({ token }) {
         }
       );
 
-      alert("Note saved ✅");
-      navigate("/");
+      alert("Saved ✅");
     } catch (err) {
-      console.error(err);
-      alert(err.response?.data?.message || "Failed to save ❌");
+      console.log(err);
+      alert("Failed ❌");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black text-white">
-      <div className="bg-white/10 p-6 rounded-xl border border-yellow-500 w-[400px]">
+    <div style={{ padding: "50px", textAlign: "center" }}>
+      
+      <h2>Add Note</h2>
 
-        <h2 className="text-yellow-400 mb-4 text-center">Add Note</h2>
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Type note..."
+        style={{ width: "300px", height: "100px" }}
+      />
 
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Type your note..."
-          className="w-full p-3 rounded bg-black/40 mb-3"
-          rows={5}
-        />
+      <br /><br />
 
-        <button
-          onClick={saveNote}
-          className="bg-yellow-500 w-full p-2 rounded text-black"
-        >
-          Save
-        </button>
+      <button
+        onClick={saveNote}
+        style={{
+          padding: "10px 20px",
+          cursor: "pointer"
+        }}
+      >
+        Save
+      </button>
 
-      </div>
     </div>
   );
 }
