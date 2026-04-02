@@ -1,0 +1,20 @@
+import jwt from "jsonwebtoken";
+
+export default function auth(req, res, next) {
+  const authHeader = req.header("Authorization");
+
+  if (!authHeader) {
+    return res.status(401).json({ message: "No token" });
+  }
+
+  try {
+    const token = authHeader.split(" ")[1]; // 🔥 MUST
+
+    const decoded = jwt.verify(token, "secretkey");
+    req.user = decoded.id;
+
+    next();
+  } catch (err) {
+    res.status(401).json({ message: "Invalid token" });
+  }
+}
