@@ -1,4 +1,4 @@
-// 🔥 ENV LOAD (FULL PATH FIX)
+// 🔥 ENV LOAD
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -7,13 +7,13 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load .env file from backend folder
+// Load .env
 dotenv.config({ path: path.join(__dirname, ".env") });
 
-// 🔍 Debug check
+// Debug
 console.log("ENV CHECK:", process.env.MONGO_URI);
 
-// باقي imports
+// Imports
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
@@ -23,11 +23,17 @@ import authRoutes from "./routes/auth.js";
 
 const app = express();
 
+// 🔥 CORS FIX (VERY IMPORTANT)
+app.use(cors({
+  origin: "*", // allow all (safe for now)
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
+
 // Middleware
-app.use(cors());
 app.use(express.json());
 
-// 🔗 MongoDB Atlas connection
+// MongoDB connection
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Atlas Connected ✅"))
   .catch(err => console.log("Mongo Error ❌:", err));
