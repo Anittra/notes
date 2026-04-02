@@ -8,10 +8,11 @@ export default function auth(req, res, next) {
   }
 
   try {
-    const token = authHeader.split(" ")[1]; // 🔥 MUST
+    const token = authHeader.split(" ")[1];
 
     const decoded = jwt.verify(token, "secretkey");
-    req.user = decoded.id;
+
+    req.user = decoded; // 🔥 IMPORTANT (object with id)
 
     next();
   } catch (err) {

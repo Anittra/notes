@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const API = "http://https://notesai-backend-rs0t.onrender.com/api/notes";
+const API = "https://notesai-backend-rs0t.onrender.com/api/notes";
 
 export default function NotesList({ token, logout }) {
   const [notes, setNotes] = useState([]);

@@ -14,7 +14,7 @@ export default function Login({ setToken }) {
         return;
       }
 
-      const res = await axios.post("http://https://notesai-backend-rs0t.onrender.com/api/auth/login", {
+      const res = await axios.post("https://notesai-backend-rs0t.onrender.com/api/auth/login", {
         email,
         password
       });

@@ -15,7 +15,7 @@ export default function Register({ setPage }) {
     try {
       setLoading(true);
 
-      await axios.post("http://https://notesai-backend-rs0t.onrender.com/api/auth/signup", {
+      await axios.post("https://notesai-backend-rs0t.onrender.com/api/auth/signup", {
         email,
         password
       });

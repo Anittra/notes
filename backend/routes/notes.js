@@ -1,53 +1,61 @@
 import express from "express";
+import Note from "../models/Note.js";
+import auth from "../middleware/auth.js";
+
 const router = express.Router();
 
-let notes = [];
-
-// 📌 GET ALL NOTES
-router.get("/", (req, res) => {
-  res.json(notes);
+// 📌 GET NOTES (USER BASED)
+router.get("/", auth, async (req, res) => {
+  try {
+    const notes = await Note.find({ user: req.user.id });
+    res.json(notes);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching notes" });
+  }
 });
 
 // 📌 ADD NOTE
-router.post("/", (req, res) => {
-  const newNote = {
-    _id: Date.now().toString(),
-    text: req.body.text
-  };
+router.post("/", auth, async (req, res) => {
+  try {
+    const { text } = req.body;
 
-  notes.unshift(newNote);
-  res.json(newNote);
+    const note = new Note({
+      text,
+      user: req.user.id   // 🔥 IMPORTANT
+    });
+
+    await note.save();
+
+    res.json(note);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error saving note" });
+  }
 });
 
-// 📌 UPDATE NOTE ✏️
-router.put("/:id", (req, res) => {
-  const { text } = req.body;
+// 📌 UPDATE NOTE
+router.put("/:id", auth, async (req, res) => {
+  try {
+    const updated = await Note.findByIdAndUpdate(
+      req.params.id,
+      { text: req.body.text },
+      { new: true }
+    );
 
-  notes = notes.map(note =>
-    note._id === req.params.id
-      ? { ...note, text }
-      : note
-  );
-
-  res.json({ message: "Note updated" });
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ message: "Error updating note" });
+  }
 });
 
-// 📌 DELETE NOTE ❌
-router.delete("/:id", (req, res) => {
-  notes = notes.filter(n => n._id !== req.params.id);
-  res.json({ message: "Deleted" });
+// 📌 DELETE NOTE
+router.delete("/:id", auth, async (req, res) => {
+  try {
+    await Note.findByIdAndDelete(req.params.id);
+    res.json({ message: "Deleted" });
+  } catch (err) {
+    res.status(500).json({ message: "Error deleting note" });
+  }
 });
-
-// UPDATE NOTE
-router.put("/:id", async (req, res) => {
-  const updated = await Note.findByIdAndUpdate(
-    req.params.id,
-    { text: req.body.text },
-    { new: true }
-  );
-  res.json(updated);
-});
-
-
 
 export default router;
