@@ -1,67 +1,59 @@
 import { useState } from "react";
 import axios from "axios";
 
-export default function Login({ setToken }) {
+export default function Login({ setToken, setPage }) { // ✅ setPage add pannom
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [password, setPass] = useState(""); 
 
   const login = async () => {
     try {
-      console.log("Login clicked");
-
-      if (!email || !password) {
-        alert("Enter email and password");
-        return;
-      }
-
       const res = await axios.post("https://notesai-backend-rs0t.onrender.com/api/auth/login", {
         email,
         password
       });
 
       localStorage.setItem("token", res.data.token);
-
-      // 👇 update app state
-      if (setToken) setToken(res.data.token);
-
-      alert("Login successfully");
-
+      setToken(res.data.token);
     } catch (err) {
-      console.error(err);
-      alert("Login failed ");
+      alert("Login failed ❌");
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black text-white">
+      <div className="bg-white/10 p-6 rounded-xl border border-yellow-500 w-[300px]">
 
-      <div className="bg-white/10 backdrop-blur-lg p-6 rounded-xl border border-yellow-500 w-[350px] shadow-xl">
-
-        <h2 className="text-2xl text-yellow-400 mb-4 text-center">
-          Login
-        </h2>
+        <h2 className="text-yellow-400 mb-3 text-center">Login 👑</h2>
 
         <input
           placeholder="Email"
-          className="w-full mb-3 p-2 rounded bg-black/40 border border-gray-600 focus:outline-none"
+          className="w-full mb-2 p-2 rounded bg-black/40"
           onChange={e => setEmail(e.target.value)}
         />
 
         <input
           placeholder="Password"
           type="password"
-          className="w-full mb-4 p-2 rounded bg-black/40 border border-gray-600 focus:outline-none"
+          className="w-full mb-3 p-2 rounded bg-black/40"
           onChange={e => setPassword(e.target.value)}
         />
 
         <button
           onClick={login}
-          className="w-full bg-yellow-500 text-black py-2 rounded-lg font-semibold hover:bg-yellow-400"
+          className="bg-yellow-500 w-full p-2 rounded text-black mb-2"
         >
           Login
         </button>
 
+        {/* 👇 NEW: Go to Register */}
+        <p
+          className="text-sm text-center cursor-pointer text-gray-300"
+          onClick={() => setPage("register")}
+        >
+          Don't have account? Signup 
+        </p>
+
       </div>
     </div>
   );
-}
+}  
