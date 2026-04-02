@@ -1,60 +1,34 @@
-import { useState } from "react";
-import axios from "axios";
+const saveNote = async () => {
+  alert("Clicked 🔥");
 
-const API = "https://notesai-backend-rs0t.onrender.com/api/notes";
+  if (!text) {
+    alert("Enter something");
+    return;
+  }
 
-export default function AddNote() {
-  const [text, setText] = useState("");
+  const token = localStorage.getItem("token");
 
-  const saveNote = async () => {
-    alert("Clicked 🔥"); // 🔥 test
+  // 🔥 IMPORTANT CHECK
+  if (!token) {
+    alert("Please login again ❌");
+    return;
+  }
 
-    if (!text) return;
-
-    const token = localStorage.getItem("token");
-
-    try {
-      await axios.post(
-        API,
-        { text },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+  try {
+    await axios.post(
+      API,
+      { text },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
         }
-      );
+      }
+    );
 
-      alert("Saved ✅");
-    } catch (err) {
-      console.log(err);
-      alert("Failed ❌");
-    }
-  };
+    alert("Saved ✅");
 
-  return (
-    <div style={{ padding: "50px", textAlign: "center" }}>
-      
-      <h2>Add Note</h2>
-
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Type note..."
-        style={{ width: "300px", height: "100px" }}
-      />
-
-      <br /><br />
-
-      <button
-        onClick={saveNote}
-        style={{
-          padding: "10px 20px",
-          cursor: "pointer"
-        }}
-      >
-        Save
-      </button>
-
-    </div>
-  );
-}
+  } catch (err) {
+    console.log("ERROR:", err.response?.data || err.message);
+    alert(err.response?.data?.message || "Failed ❌");
+  }
+};
