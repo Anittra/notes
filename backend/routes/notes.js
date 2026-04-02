@@ -1,90 +1,53 @@
 import express from "express";
-import Note from "../models/Note.js";
-import auth from "../middleware/auth.js";
-
 const router = express.Router();
 
-// 📌 GET NOTES (USER BASED)
-router.get("/", auth, async (req, res) => {
-  try {
-    const notes = await Note.find({ user: req.user.id });
-    res.json(notes);
-  } catch (err) {
-    console.log("GET ERROR:", err.message);
-    res.status(500).json({ message: "Error fetching notes" });
-  }
+let notes = [];
+
+// 📌 GET ALL NOTES
+router.get("/", (req, res) => {
+  res.json(notes);
 });
 
 // 📌 ADD NOTE
-router.post("/", auth, async (req, res) => {
-  try {
-    const { text } = req.body;
+router.post("/", (req, res) => {
+  const newNote = {
+    _id: Date.now().toString(),
+    text: req.body.text
+  };
 
-    if (!text) {
-      return res.status(400).json({ message: "Text is required" });
-    }
-
-    const note = new Note({
-      text,
-      user: req.user.id
-    });
-
-    await note.save();
-
-    res.json(note);
-
-  } catch (err) {
-    console.log("SAVE ERROR:", err.message);
-    res.status(500).json({ message: "Error saving note" });
-  }
+  notes.unshift(newNote);
+  res.json(newNote);
 });
 
-// 📌 UPDATE NOTE (ONLY OWNER)
-router.put("/:id", auth, async (req, res) => {
-  try {
-    const note = await Note.findById(req.params.id);
+// 📌 UPDATE NOTE ✏️
+router.put("/:id", (req, res) => {
+  const { text } = req.body;
 
-    if (!note) {
-      return res.status(404).json({ message: "Note not found" });
-    }
+  notes = notes.map(note =>
+    note._id === req.params.id
+      ? { ...note, text }
+      : note
+  );
 
-    if (note.user.toString() !== req.user.id) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    note.text = req.body.text || note.text;
-
-    const updated = await note.save();
-
-    res.json(updated);
-
-  } catch (err) {
-    console.log("UPDATE ERROR:", err.message);
-    res.status(500).json({ message: "Error updating note" });
-  }
+  res.json({ message: "Note updated" });
 });
 
-// 📌 DELETE NOTE (ONLY OWNER)
-router.delete("/:id", auth, async (req, res) => {
-  try {
-    const note = await Note.findById(req.params.id);
-
-    if (!note) {
-      return res.status(404).json({ message: "Note not found" });
-    }
-
-    if (note.user.toString() !== req.user.id) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    await note.deleteOne();
-
-    res.json({ message: "Deleted" });
-
-  } catch (err) {
-    console.log("DELETE ERROR:", err.message);
-    res.status(500).json({ message: "Error deleting note" });
-  }
+// 📌 DELETE NOTE ❌
+router.delete("/:id", (req, res) => {
+  notes = notes.filter(n => n._id !== req.params.id);
+  res.json({ message: "Deleted" });
 });
+
+// UPDATE NOTE
+router.put("/:id", async (req, res) => {
+  const updated = await Note.findByIdAndUpdate(
+    req.params.id,
+    { text: req.body.text },
+    { new: true }
+  );
+  res.json(updated);
+});
+
+
 
 export default router;
