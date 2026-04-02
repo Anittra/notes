@@ -6,7 +6,7 @@ export default function Register() {
   const [password, setPassword] = useState("");
 
   const register = async () => {
-    await axios.post("http://localhost:5000/api/auth/signup", {
+    await axios.post("http://https://notesai-backend-rs0t.onrender.com/api/auth/signup", {
       email,
       password
     });

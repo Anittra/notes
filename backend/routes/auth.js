@@ -5,34 +5,61 @@ import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
-// SIGNUP
+// 🔐 SIGNUP
 router.post("/signup", async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  const userExists = await User.findOne({ email });
-  if (userExists) return res.status(400).json({ msg: "User exists" });
+    // check user exists
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: "User already exists" });
+    }
 
-  const hashed = await bcrypt.hash(password, 10);
+    // hash password
+    const hashed = await bcrypt.hash(password, 10);
 
-  const user = new User({ email, password: hashed });
-  await user.save();
+    // create user
+    const user = new User({ email, password: hashed });
+    await user.save();
 
-  res.json({ msg: "Signup success" });
+    res.json({ message: "Signup successful" });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
 });
 
-// LOGIN
+
+// 🔐 LOGIN
 router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
-  if (!user) return res.status(400).json({ msg: "User not found" });
+    // check user
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
 
-  const match = await bcrypt.compare(password, user.password);
-  if (!match) return res.status(400).json({ msg: "Wrong password" });
+    // check password
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.status(400).json({ message: "Wrong password" });
+    }
 
-  const token = jwt.sign({ id: user._id }, "secretkey");
+    // generate token
+    const token = jwt.sign({ id: user._id }, "secretkey", {
+      expiresIn: "1d"
+    });
 
-  res.json({ token });
+    res.json({ token, message: "Login successful" });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
 });
 
 export default router;

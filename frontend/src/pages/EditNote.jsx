@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 
-const API = "http://localhost:5000/api/notes";
+const API = "http://https://notesai-backend-rs0t.onrender.com/api/notes";
 
 export default function EditNote() {
   const { id } = useParams();
